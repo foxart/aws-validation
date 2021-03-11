@@ -1,0 +1,21 @@
+{
+  "name": "aws-validation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "postinstall": "ts-node schemas/generate.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ivan Kosenko",
+  "license": "ISC",
+  "dependencies": {
+    "serverless-aws-documentation": "^1.1.0",
+    "serverless-reqvalidator-plugin": "^1.0.4"
+  },
+  "devDependencies": {
+    "serverless": "^2.29.0",
+    "ts-node": "^9.1.1",
+    "typescript-json-schema": "^0.49.0"
+  }
+}

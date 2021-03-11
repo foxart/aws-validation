@@ -1,0 +1,85 @@
+service: validation
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  region: eu-west-1
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+  apiGateway:
+    shouldStartNameWithService: true
+#  deploymentBucket: my.${self:provider.region}.serverless.deploys
+
+custom:
+  documentation:
+    api:
+      info:
+        version: "1" # this will be ignored due to an issue in API Gateway doc export
+        title: "AWS Validation" # this will be ignored due to an issue in API Gateway doc export
+        description: "Sample Benchmarks API"
+    models:
+      - name: reqValidatorRequest
+        contentType: "application/json"
+        schema:
+          required:
+            - email
+            - password
+          properties:
+            email:
+              type: string
+            password:
+              type: string
+
+plugins:
+  - serverless-aws-documentation
+  - serverless-reqvalidator-plugin
+
+functions:
+  test1:
+    handler: handler.test1
+    description: Test validation schema
+    events:
+      - http:
+          path: v1/test1
+          method: post
+          cors: true
+          request:
+            schemas:
+              application/json:
+                schema: ${file(.schemas/ITest.json)}
+                name: CreateModel
+                description: 'Validation model for Creating'
+  test2:
+    handler: handler.test2
+    description: Test reqvalidator plugin
+    events:
+      - http:
+          path: v1/test2
+          method: post
+          cors: true
+          documentation:
+            requestModels:
+              "application/json": reqValidatorRequest
+          reqValidatorName: myRequestValidator
+
+resources:
+  Resources:
+    #schema
+    badRequestSchema:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseTemplates:
+          application/json: ${file(.schemas/badRequestSchema.js)}
+        ResponseType: 'BAD_REQUEST_BODY'
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        StatusCode: 400
+    #reqvalidator
+    myRequestValidator:
+      Type: 'AWS::ApiGateway::RequestValidator'
+      Properties:
+        Name: 'my-req-validator'
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ValidateRequestBody: true
+        ValidateRequestParameters: false
