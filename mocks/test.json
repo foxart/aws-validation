@@ -1,0 +1,7 @@
+{
+	"body": {
+		"boolean": true,
+		"integer": 1000,
+		"string": "lorem ipsum"
+	}
+}
